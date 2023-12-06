@@ -11,6 +11,7 @@ python = "^3.7"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.3"
+pytest-assume = "^2.4.3"
 
 [build-system]
 requires = ["poetry-core"]
