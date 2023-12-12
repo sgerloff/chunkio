@@ -1,8 +1,7 @@
-import builtins
-
 from typing import Optional
-from io import IOBase
+
+from chunk_handler import ChunkHandler
 
 
-def open(*args, num_chunks: Optional[int] = None, **kwargs):
-    return builtins.open(*args, **kwargs)
+def open(*args, max_lines: Optional[int] = None, **kwargs):
+    return ChunkHandler(*args, max_lines=max_lines, **kwargs)
