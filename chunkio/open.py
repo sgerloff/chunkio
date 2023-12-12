@@ -1,3 +1,5 @@
+import builtins
+
 from typing import Optional
 
 from chunkio.chunk_handler import MaxLineChunkWriter, SequentialChunkReader
@@ -9,4 +11,4 @@ def open(file_path: str, mode: str = "r", *args, max_lines: Optional[int] = None
     elif max_lines is not None:
         return MaxLineChunkWriter(file_path, mode, *args, max_lines=max_lines, **kwargs)
     else:
-        return open(file_path, *args, **kwargs)
+        return builtins.open(file_path, *args, **kwargs)
