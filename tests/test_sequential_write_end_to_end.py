@@ -1,4 +1,5 @@
 import os.path
+import shutil
 
 import pytest
 import chunkio
@@ -11,6 +12,7 @@ def test_write_num_chunks_end_to_end():
 
     # Initialize file location
     TMP_DIR = "/tmp/chunkio"
+    shutil.rmtree(TMP_DIR, ignore_errors=True)
     BASE_FILE_NAME = os.path.join(TMP_DIR, "write_fixed_file_number.txt")
     os.makedirs(TMP_DIR, exist_ok=True)
 
@@ -31,7 +33,7 @@ def test_write_num_chunks_end_to_end():
     pytest.assume(input_data == output_data)
 
     # Clean up tmp dirs
-    os.removedirs(TMP_DIR)
+    shutil.rmtree(TMP_DIR, ignore_errors=True)
 
 
 def test_writelines_num_chunks_end_to_end():
@@ -41,6 +43,7 @@ def test_writelines_num_chunks_end_to_end():
 
     # Initialize file location
     TMP_DIR = "/tmp/chunkio"
+    shutil.rmtree(TMP_DIR, ignore_errors=True)
     BASE_FILE_NAME = os.path.join(TMP_DIR, "write_fixed_file_number.txt")
     os.makedirs(TMP_DIR, exist_ok=True)
 
@@ -60,4 +63,4 @@ def test_writelines_num_chunks_end_to_end():
     pytest.assume(input_data == output_data)
 
     # Clean up tmp dirs
-    os.removedirs(TMP_DIR)
+    shutil.rmtree(TMP_DIR, ignore_errors=True)

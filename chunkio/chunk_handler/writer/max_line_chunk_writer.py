@@ -1,9 +1,11 @@
-from typing import Optional
+import os
 
-from utils import get_chunk_file_path
+from typing import Optional, List, AnyStr
+
+from chunkio.utils import get_chunk_file_path
 
 
-class ChunkHandler:
+class MaxLineChunkWriter:
     def __init__(
             self,
             file_path: str,
@@ -35,24 +37,36 @@ class ChunkHandler:
         self._current_file_count += 1
         return _write_result
 
+    def writelines(self, lines: List[AnyStr]) -> None:
+        # ToDo: Be smarter about this. We know the max line number and can batch write lines.
+        for line in lines:
+            self.write(line + "\n")
+
     def _get_current_file(self):
         if self._current_file is None:
-            self._current_file_id = 0
-            self._current_file_count = 0
+            self._current_file_id = None
             self._open_next_current_file()
 
         if self._current_file_count >= self.max_lines:
-            self._current_file_id += 1
-            self._current_file_count = 0
             self._open_next_current_file()
 
         return self._current_file
 
     def _open_next_current_file(self):
+        if self._current_file is not None:
+            self._current_file.close()
+
+        if self._current_file_id is None:
+            self._current_file_id = 0
+        else:
+            self._current_file_id += 1
+
         _current_file_path = get_chunk_file_path(self.file_path, self._current_file_id)
         self._current_file = open(_current_file_path,
                                   *self.open_args,
                                   **self.open_kwargs)
+
+        self._current_file_count = 0
 
     def __getattr__(self, item):
         """
@@ -62,12 +76,3 @@ class ChunkHandler:
         :return:
         """
         return self._current_file.__getattribute__(item)
-
-
-if __name__ == "__main__":
-    import os
-
-    os.makedirs("/tmp/chunkio", exist_ok=True)
-    with ChunkHandler("/tmp/chunkio/test.txt", "w", max_lines=3) as file:
-        for i in range(30):
-            file.write(f"{i}\n")
