@@ -69,7 +69,8 @@ def test_walk_subdir_numbered_chunk_format():
     invalid_files = [
         "subdir_numbered_chunk_format.txt",
         "subdir_numbered_chunk_format.two.txt",
-        "subdir_numbered_chunk_format.-1.txt"
+        "subdir_numbered_chunk_format.-1.txt",
+        "not_matching_base_file.-1.txt"
     ]
 
     os.makedirs(base_directory, exist_ok=True)
