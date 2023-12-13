@@ -1,2 +1,3 @@
 from .writer.max_line_chunk_writer import MaxLineChunkWriter
 from .reader.sequential_chunk_reader import SequentialChunkReader
+from .format import SubdirNumberedChunkFormat

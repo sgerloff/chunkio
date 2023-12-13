@@ -2,7 +2,7 @@ import os
 
 from typing import Optional, List, AnyStr
 
-from chunkio.utils import get_chunk_file_path
+from chunkio.chunk_handler.format import BaseChunkFormat, SubdirNumberedChunkFormat
 
 
 class MaxLineChunkWriter:
@@ -11,14 +11,16 @@ class MaxLineChunkWriter:
             file_path: str,
             *open_args,
             max_lines: Optional[int] = None,
+            chunk_format: BaseChunkFormat = SubdirNumberedChunkFormat(index_format="06d"),
             **open_kwargs
     ):
         self.file_path = file_path
+        self.max_lines = max_lines
+        self.chunk_format = chunk_format
 
         self.open_args = open_args
         self.open_kwargs = open_kwargs
 
-        self.max_lines = max_lines
         self._current_file = None
         self._current_file_id = None
         self._current_file_count = None
@@ -61,7 +63,7 @@ class MaxLineChunkWriter:
         else:
             self._current_file_id += 1
 
-        _current_file_path = get_chunk_file_path(self.file_path, self._current_file_id)
+        _current_file_path = self.chunk_format.format(self.file_path, self._current_file_id)
         self._current_file = open(_current_file_path,
                                   *self.open_args,
                                   **self.open_kwargs)

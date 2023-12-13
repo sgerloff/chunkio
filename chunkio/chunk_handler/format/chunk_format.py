@@ -1,3 +1,5 @@
+import os
+
 from abc import ABC, abstractmethod
 from typing import Tuple, Union, Generator
 
@@ -42,3 +44,42 @@ class BaseChunkFormat(ABC):
         :return: either chunked file path or tuple of chunked file path and corresponding index
         """
         pass
+
+
+class SubdirNumberedChunkFormat(BaseChunkFormat):
+    def __init__(self, index_format: str = "06d"):
+        """
+        Uses the base file path as a directory and places chunks in that directory:
+        - /path/to/base_file_path.ext/base_file_path.{index:06d}.ext
+
+        :param index_format: format string for the index string
+        """
+
+        self.index_format = index_format
+
+    def format(self, file_path: str, index: int) -> str:
+        assert index >= 0, "Index should be an unsigned positive integer!"
+
+        file_name = os.path.basename(file_path)
+        file_name, file_ext = os.path.splitext(file_name)
+        return os.path.join(file_path, f"{file_name}.{index:{self.index_format}}{file_ext}")
+
+    def parse(self, chunk_file_path: str) -> Tuple[str, int]:
+        base_file_path = os.path.dirname(chunk_file_path)
+        _chunk_file_name = os.path.basename(chunk_file_path)
+        chunk_index = _chunk_file_name.split(".")[-2]
+        return base_file_path, int(chunk_index)
+
+    def walk(self, file_path: str, return_index: bool = False) -> Generator[Union[str, Tuple[str, int]], None, None]:
+        _index = 0
+        _interrupted = False
+        while not _interrupted:
+            chunk_file_path = self.format(file_path, _index)
+            if not os.path.isfile(chunk_file_path):
+                _interrupted = True
+                continue
+            if return_index:
+                yield chunk_file_path, _index
+            else:
+                yield chunk_file_path
+            _index += 1
