@@ -83,15 +83,23 @@ class SubdirNumberedChunkFormat(BaseChunkFormat):
         return base_file_path, chunk_index
 
     def walk(self, file_path: str, return_index: bool = False) -> Generator[Union[str, Tuple[str, int]], None, None]:
-        _index = 0
-        _interrupted = False
-        while not _interrupted:
-            chunk_file_path = self.format(file_path, _index)
-            if not os.path.isfile(chunk_file_path):
-                _interrupted = True
+        parsed_files, parsed_ids = [],[]
+        for file_name in os.listdir(file_path):
+            potential_file_path = os.path.join(file_path, file_name)
+            if not os.path.isfile(potential_file_path):
                 continue
+            try:
+                base_path, index = self.parse(potential_file_path)
+            except AssertionError:
+                continue
+            if base_path != file_path:
+                continue
+            parsed_files.append(potential_file_path)
+            parsed_ids.append(index)
+
+        sorted_file_paths = [(path, index) for path, index in sorted(zip(parsed_files, parsed_ids), key=lambda t: t[1])]
+        for chunk_file, index in sorted_file_paths:
             if return_index:
-                yield chunk_file_path, _index
+                yield chunk_file, index
             else:
-                yield chunk_file_path
-            _index += 1
+                yield chunk_file
