@@ -1,4 +1,4 @@
-import os
+from chunkio.chunk_handler.format import BaseChunkFormat, SubdirNumberedChunkFormat
 
 
 class SequentialChunkReader:
@@ -7,16 +7,18 @@ class SequentialChunkReader:
             file_path: str,
             mode: str,
             *open_args,
+            chunk_format: BaseChunkFormat = SubdirNumberedChunkFormat(index_format="06d"),
             **open_kwargs
     ):
+
         self.file_path = file_path
         self.mode = mode
+        self.chunk_format = chunk_format
+
         self.open_args = open_args
         self.open_kwargs = open_kwargs
 
-        assert "r" in self.mode, f"{self.__class__.__name__} is read only! (Supported modes: 'r', 'rb')"
-
-        self._chunk_file_paths = sorted([os.path.join(file_path, file) for file in os.listdir(file_path)])
+        assert self.mode in ["r", "rt", "tr"], f"{self.__class__.__name__} is read only! (Supported modes: 'r', 'rt')"
         self._current_file = None
 
     def __enter__(self):
@@ -27,7 +29,7 @@ class SequentialChunkReader:
             return self._current_file.__exit__(exc_type, exc_val, exc_tb)
 
     def __iter__(self):
-        for file_path in self._chunk_file_paths:
+        for file_path in self.chunk_format.walk(self.file_path):
             self._current_file = open(file_path, self.mode, *self.open_args, **self.open_kwargs)
             for line in self._current_file:
                 yield line
