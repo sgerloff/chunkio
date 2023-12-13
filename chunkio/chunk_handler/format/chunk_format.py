@@ -71,8 +71,16 @@ class SubdirNumberedChunkFormat(BaseChunkFormat):
     def parse(self, chunk_file_path: str) -> Tuple[str, int]:
         base_file_path = os.path.dirname(chunk_file_path)
         _chunk_file_name = os.path.basename(chunk_file_path)
-        chunk_index = _chunk_file_name.split(".")[-2]
-        return base_file_path, int(chunk_index)
+
+        _chunk_file_split = _chunk_file_name.split(".")
+        assert len(_chunk_file_split) >= 3, f"Unexpected format from {chunk_file_path}"
+        try:
+            chunk_index = int(_chunk_file_split[-2])
+        except ValueError:
+            raise AssertionError(f"Could not parse index from {chunk_file_path}")
+        self._validate_index(chunk_index)
+
+        return base_file_path, chunk_index
 
     def walk(self, file_path: str, return_index: bool = False) -> Generator[Union[str, Tuple[str, int]], None, None]:
         _index = 0
