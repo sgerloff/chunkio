@@ -5,6 +5,10 @@ from typing import Tuple, Union, Generator
 
 
 class BaseChunkFormat(ABC):
+    @staticmethod
+    def _validate_index(index: int):
+        assert isinstance(index, int) and index >= 0, "Index should be an unsigned positive integer!"
+
     @abstractmethod
     def format(self, file_path: str, index: int) -> str:
         """
@@ -58,7 +62,7 @@ class SubdirNumberedChunkFormat(BaseChunkFormat):
         self.index_format = index_format
 
     def format(self, file_path: str, index: int) -> str:
-        assert index >= 0, "Index should be an unsigned positive integer!"
+        self._validate_index(index)
 
         file_name = os.path.basename(file_path)
         file_name, file_ext = os.path.splitext(file_name)

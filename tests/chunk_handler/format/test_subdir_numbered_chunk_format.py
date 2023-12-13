@@ -15,7 +15,9 @@ def test_format_subdir_numbered_chunk_format(file_path:str, index: int, expected
 
 @pytest.mark.parametrize(
     "file_path,index", [
-        ("/tmp/test_file.txt", -1)
+        ("/tmp/test_file.txt", -1),
+        ("/tmp/test_file.txt", 1.1),
+        ("/tmp/test_file.txt", "eins")
     ]
 )
 def test_format_subdir_numbered_chunk_format_assertion(file_path: str, index: int):
