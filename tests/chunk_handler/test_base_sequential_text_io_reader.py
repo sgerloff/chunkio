@@ -27,7 +27,7 @@ TEXT_WITH_EMPTY_FILES = "".join([
         # Read all
         (TEXT_WITH_EMPTY_FILES, -1, ["first line\n", "second line\n", "third line\n", "forth line\n"]),
         (TEXT_WITH_EMPTY_FILES, 10, ["first line\n"]),
-        (TEXT_WITH_EMPTY_FILES, 11, ["first line\n", "second line\n"])
+        (TEXT_WITH_EMPTY_FILES, 25, ["first line\n", "second line\n", "third line\n"])
     ]
 )
 def test_base_sequential_text_io_reader_readlines(data: str, sizehint: int, expected_lines: List[str]):
