@@ -8,14 +8,6 @@ from typing import BinaryIO, TextIO, Type, Iterator, AnyStr, Iterable, Optional,
 from chunkio.chunk_handler.format import BaseChunkFormat, SubdirNumberedChunkFormat
 
 
-# def _pad_line_break(line: Optional[str]) -> Optional[str]:
-#     if line is None:
-#         return line
-#     if not line.endswith("\n"):
-#         line = line + "\n"
-#     return line
-
-
 class BaseSequentialTextIOReader(typing.TextIO):
     def __init__(
             self,
@@ -48,7 +40,6 @@ class BaseSequentialTextIOReader(typing.TextIO):
         # Close file only after opening a new file successfully!
         if isinstance(_old_file, _io.TextIOWrapper):
             _old_file.close()
-
 
     @property
     def mode(self) -> str:
@@ -149,14 +140,8 @@ class BaseSequentialTextIOReader(typing.TextIO):
         else:
             return False
 
-    def _maybe_readable(self):
-        try:
-            return self.readable()
-        except ValueError:
-            return False
-
     def readline(self, __limit: int = -1, *args) -> AnyStr:
-        if not self._maybe_readable():
+        if self.closed:
             try:
                 self._open_next_file()
             except StopIteration:
@@ -179,7 +164,7 @@ class BaseSequentialTextIOReader(typing.TextIO):
         lines = []
         _current_hint = __hint
 
-        if not self.readable():
+        if self.closed:
             try:
                 self._open_next_file()
             except StopIteration:
@@ -248,7 +233,7 @@ class BaseSequentialTextIOReader(typing.TextIO):
         raise NotImplementedError
 
     def __next__(self) -> AnyStr:
-        if not self.readable():
+        if self.closed:
             self._open_next_file()
         while True:
             try:
