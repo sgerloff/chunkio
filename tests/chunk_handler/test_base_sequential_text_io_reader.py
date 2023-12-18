@@ -54,4 +54,17 @@ def test_base_sequential_text_io_reader_readline(data: str, size: int, expected_
         with BaseSequentialTextIOReader(_base_file_path, mode="r") as file:
             ten_lines = [file.readline(size) for _ in range(10)]
         assert ten_lines == expected_ten_lines
-    
+
+
+@pytest.mark.parametrize(
+    "data, expected_lines", [
+        (TEXT_WITH_EMPTY_FILES, ["first line\n", "second line\n", "third line\n", "forth line\n"])
+    ]
+)
+def test_base_sequential_text_io_reader_iter(data: str, expected_lines: List[str]):
+    _base_dir = "/tmp/chunkio"
+    _base_file_path = os.path.join(_base_dir, "iter.txt")
+    with FileSystemBuilder(data, base_path=_base_dir, keep_files=False) as _:
+        with BaseSequentialTextIOReader(_base_file_path, mode="r") as file:
+            ten_lines = [line for line in file]
+        assert ten_lines == expected_lines
