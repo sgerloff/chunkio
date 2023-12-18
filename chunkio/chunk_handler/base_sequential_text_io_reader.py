@@ -1,3 +1,5 @@
+import _io
+import typing
 import warnings
 
 from types import TracebackType
@@ -6,7 +8,15 @@ from typing import BinaryIO, TextIO, Type, Iterator, AnyStr, Iterable, Optional,
 from chunkio.chunk_handler.format import BaseChunkFormat, SubdirNumberedChunkFormat
 
 
-class BaseSequentialTextIOReader(TextIO):
+# def _pad_line_break(line: Optional[str]) -> Optional[str]:
+#     if line is None:
+#         return line
+#     if not line.endswith("\n"):
+#         line = line + "\n"
+#     return line
+
+
+class BaseSequentialTextIOReader(typing.TextIO):
     def __init__(
             self,
             file_path: str,
@@ -31,7 +41,7 @@ class BaseSequentialTextIOReader(TextIO):
             yield open(file_path, mode=self.mode, *self.open_args, **self.open_kwargs)
 
     def _open_next_file(self):
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             self._current_file.close()
         self._current_file = next(self._file_generator)
 
@@ -45,14 +55,14 @@ class BaseSequentialTextIOReader(TextIO):
 
     @property
     def closed(self) -> bool:
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.closed
         else:
             return True
 
     @property
     def buffer(self) -> BinaryIO:
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.buffer
         else:
             raise NotImplementedError("Buffer not initialized yet!")
@@ -62,7 +72,7 @@ class BaseSequentialTextIOReader(TextIO):
         _encoding = self.open_kwargs.get("encoding")
         if isinstance(_encoding, str):
             return _encoding
-        elif isinstance(self._current_file, TextIO):
+        elif isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.encoding
         else:
             raise NotImplementedError("Encoding not initialized yet!")
@@ -72,21 +82,21 @@ class BaseSequentialTextIOReader(TextIO):
         _errors = self.open_kwargs.get("errors")
         if isinstance(_errors, str):
             return _errors
-        elif isinstance(self._current_file, TextIO):
+        elif isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.errors
         else:
             return None
 
     @property
     def line_buffering(self) -> bool | int:
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.line_buffering
         else:
             return False
 
     @property
     def newlines(self) -> Any:
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.newlines
         else:
             raise NotImplementedError("Newlines not initialized yet!")
@@ -95,25 +105,25 @@ class BaseSequentialTextIOReader(TextIO):
         return self
 
     def close(self) -> None:
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.close()
         else:
             return None
 
     def fileno(self) -> int:
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.fileno()
         else:
             raise NotImplementedError("Current file not initialized yet!")
 
     def flush(self) -> None:
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.flush()
         else:
             return None
 
     def isatty(self) -> bool:
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.isatty()
         else:
             return False
@@ -123,29 +133,39 @@ class BaseSequentialTextIOReader(TextIO):
         if self.verbose:
             warnings.warn("read forwards to current chunk file. This may not be what you have intended to do! "
                           "(To silence this warning set verbose to false)")
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.read(*args)
         else:
             raise NotImplementedError("Current file not initialized yet!")
 
     def readable(self) -> bool:
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.readable()
         else:
             return False
 
+    def _maybe_readable(self):
+        try:
+            return self.readable()
+        except ValueError:
+            return False
+
     def readline(self, __limit: int = -1, *args) -> AnyStr:
-        if not self.readable():
+        if not self._maybe_readable():
             try:
                 self._open_next_file()
             except StopIteration:
                 return ""
 
-        line = self._current_file.readline(__limit, *args)
-        if line:
-            return line
-        else:
-            return self.readline(__limit, *args)
+        while True:
+            line = self._current_file.readline(__limit, *args)
+            if line == "":
+                try:
+                    self._open_next_file()
+                except StopIteration:
+                    return ""
+            else:
+                return line
 
     def readlines(self, __hint: int = -1, *args) -> list[AnyStr]:
         if __hint <= 0:
@@ -179,13 +199,13 @@ class BaseSequentialTextIOReader(TextIO):
         if self.verbose:
             warnings.warn("seek forwards to current chunk file. This may not be what you have intended to do! "
                           "(To silence this warning set verbose to false)")
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.seek(*args, **kwargs)
         else:
             raise NotImplementedError("Current file not initialized yet!")
 
     def seekable(self) -> bool:
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.seekable()
         else:
             return False
@@ -195,7 +215,7 @@ class BaseSequentialTextIOReader(TextIO):
         if self.verbose:
             warnings.warn("tell forwards to current chunk file. This may not be what you have intended to do! "
                           "(To silence this warning set verbose to false)")
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.tell()
         else:
             raise NotImplementedError("Current file not initialized yet!")
@@ -205,13 +225,13 @@ class BaseSequentialTextIOReader(TextIO):
         if self.verbose:
             warnings.warn("truncate forwards to current chunk file. This may not be what you have intended to do! "
                           "(To silence this warning set verbose to false)")
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.truncate(*args, **kwargs)
         else:
             raise NotImplementedError("Current file not initialized yet!")
 
     def writable(self) -> bool:
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             return self._current_file.writable()
         else:
             return False
@@ -236,5 +256,5 @@ class BaseSequentialTextIOReader(TextIO):
 
     def __exit__(self, __t: Type[BaseException] | None, __value: BaseException | None,
                  __traceback: TracebackType | None) -> None:
-        if isinstance(self._current_file, TextIO):
+        if isinstance(self._current_file, _io.TextIOWrapper):
             self._current_file.close()
