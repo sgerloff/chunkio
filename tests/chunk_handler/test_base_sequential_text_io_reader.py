@@ -7,17 +7,17 @@ from tests.utils import FileSystemBuilder
 from chunkio.chunk_handler import BaseSequentialTextIOReader, SubdirNumberedChunkFormat
 
 TEXT_WITH_EMPTY_FILES = "".join([
-    "<readlines/readlines.000000.txt>",
+    "<test.txt/readlines.000000.txt>",
     "",  # Start empty file
-    "<readlines/readlines.000001.txt>",
+    "<test.txt/readlines.000001.txt>",
     "first line\nsecond line",
-    "<readlines/readlines.000002.txt>",
+    "<test.txt/readlines.000002.txt>",
     "",  # Consequtive empty file
-    "<readlines/readlines.000003.txt>",
+    "<test.txt/readlines.000003.txt>",
     "",  # Consequitive empty file
-    "<readlines/readlines.000004.txt>",
+    "<test.txt/readlines.000004.txt>",
     "third line\nforth line",
-    "<readlines/readlines.000005.txt>",
+    "<test.txt/readlines.000005.txt>",
     ""  # End empty file
 ])
 
@@ -32,7 +32,7 @@ TEXT_WITH_EMPTY_FILES = "".join([
 )
 def test_base_sequential_text_io_reader_readlines(data: str, sizehint: int, expected_lines: List[str]):
     _base_dir = "/tmp/chunkio"
-    _base_file_path = os.path.join(_base_dir, "readlines.txt")
+    _base_file_path = os.path.join(_base_dir, "test.txt")
     with FileSystemBuilder(data, base_path=_base_dir, keep_files=False) as _:
         with BaseSequentialTextIOReader(_base_file_path, mode="r") as file:
             lines = file.readlines(sizehint)
@@ -49,7 +49,7 @@ def test_base_sequential_text_io_reader_readlines(data: str, sizehint: int, expe
 )
 def test_base_sequential_text_io_reader_readline(data: str, size: int, expected_ten_lines: List[str]):
     _base_dir = "/tmp/chunkio"
-    _base_file_path = os.path.join(_base_dir, "readline.txt")
+    _base_file_path = os.path.join(_base_dir, "test.txt")
     with FileSystemBuilder(data, base_path=_base_dir, keep_files=False) as _:
         with BaseSequentialTextIOReader(_base_file_path, mode="r") as file:
             ten_lines = [file.readline(size) for _ in range(10)]
@@ -63,7 +63,7 @@ def test_base_sequential_text_io_reader_readline(data: str, size: int, expected_
 )
 def test_base_sequential_text_io_reader_iter(data: str, expected_lines: List[str]):
     _base_dir = "/tmp/chunkio"
-    _base_file_path = os.path.join(_base_dir, "iter.txt")
+    _base_file_path = os.path.join(_base_dir, "test.txt")
     with FileSystemBuilder(data, base_path=_base_dir, keep_files=False) as _:
         with BaseSequentialTextIOReader(_base_file_path, mode="r") as file:
             ten_lines = [line for line in file]

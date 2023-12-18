@@ -135,10 +135,44 @@ class BaseSequentialTextIOReader(TextIO):
             return False
 
     def readline(self, __limit: int = -1, *args) -> AnyStr:
-        return ""
+        if not self.readable():
+            try:
+                self._open_next_file()
+            except StopIteration:
+                return ""
+
+        line = self._current_file.readline(__limit, *args)
+        if line:
+            return line
+        else:
+            return self.readline(__limit, *args)
 
     def readlines(self, __hint: int = -1, *args) -> list[AnyStr]:
-        return []
+        if __hint <= 0:
+            return [line for line in self]
+
+        lines = []
+        _current_hint = __hint
+
+        if not self.readable():
+            try:
+                self._open_next_file()
+            except StopIteration:
+                return lines
+
+        while True:
+            _new_lines = self._current_file.readlines(_current_hint, *args)
+            lines.extend(_new_lines)
+            _current_hint -= sum([len(line) for line in _new_lines])
+            if _current_hint > 0:
+                try:
+                    self._open_next_file()
+                except StopIteration:
+                    break
+            else:
+                break
+
+        return lines
 
     def seek(self, *args, **kwargs) -> int:
         # ToDo: This might be possible to implement properly, at a later time. Currently not the intended use-case.
@@ -183,17 +217,24 @@ class BaseSequentialTextIOReader(TextIO):
             return False
 
     def write(self, __s: AnyStr) -> int:
-        pass
+        raise NotImplementedError
 
     def writelines(self, __lines: Iterable[AnyStr]) -> None:
-        pass
+        raise NotImplementedError
 
     def __next__(self) -> AnyStr:
-        pass
+        if not self.readable():
+            self._open_next_file()
+        while True:
+            try:
+                return next(self._current_file)
+            except StopIteration:
+                self._open_next_file()
 
     def __iter__(self) -> Iterator[AnyStr]:
-        pass
+        return self
 
     def __exit__(self, __t: Type[BaseException] | None, __value: BaseException | None,
                  __traceback: TracebackType | None) -> None:
-        pass
+        if isinstance(self._current_file, TextIO):
+            self._current_file.close()
