@@ -68,3 +68,30 @@ def test_base_sequential_text_io_reader_iter(data: str, expected_lines: List[str
         with BaseSequentialTextIOReader(_base_file_path, mode="r") as file:
             ten_lines = [line for line in file]
         assert ten_lines == expected_lines
+
+
+@pytest.mark.parametrize(
+    "data, expected_lines", [
+        (TEXT_WITH_EMPTY_FILES, ["firs", "t line\n", "second line\n", "third line\n", "forth ", "line\n", ""])
+    ]
+)
+def test_base_sequential_text_io_reader_mixed_reads(data: str, expected_lines: List[str]):
+    _base_dir = "/tmp/chunkio"
+    _base_file_path = os.path.join(_base_dir, "test.txt")
+    with FileSystemBuilder(data, base_path=_base_dir, keep_files=False) as _:
+        lines = []
+        with BaseSequentialTextIOReader(_base_file_path, mode="r") as file:
+            # Partially read first line
+            lines.append(file.readline(4))
+            # Read some more lines up to sizehint 21
+            lines.extend(file.readlines(21))
+            # Read again a line partially
+            lines.append(file.readline(6))
+            # Read the rest from full iteration
+            lines.extend([line for line in file])
+            # Check response after exhausting content
+            lines.append(file.readline())
+            # Check that further iteration does not return more content
+            lines.extend(file.readlines())
+            lines.extend([line for line in file])
+    assert lines == expected_lines
