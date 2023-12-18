@@ -10,13 +10,13 @@ TEXT_WITH_EMPTY_FILES = "".join([
     "<test.txt/readlines.000000.txt>",
     "",  # Start empty file
     "<test.txt/readlines.000001.txt>",
-    "first line\nsecond line",
+    "first line\nsecond line\n",
     "<test.txt/readlines.000002.txt>",
     "",  # Consequtive empty file
     "<test.txt/readlines.000003.txt>",
     "",  # Consequitive empty file
     "<test.txt/readlines.000004.txt>",
-    "third line\nforth line",
+    "third line\nforth line\n",
     "<test.txt/readlines.000005.txt>",
     ""  # End empty file
 ])
@@ -44,7 +44,7 @@ def test_base_sequential_text_io_reader_readlines(data: str, sizehint: int, expe
         (TEXT_WITH_EMPTY_FILES, -1, 
          ["first line\n", "second line\n", "third line\n", "forth line\n"] + 6*[""]),
         (TEXT_WITH_EMPTY_FILES, 9, 
-         ['first lin', 'e\n', 'second li', 'ne\n', 'third lin', 'e\n', 'forth lin', 'e', '', ''])
+         ['first lin', 'e\n', 'second li', 'ne\n', 'third lin', 'e\n', 'forth lin', 'e\n', '', ''])
     ]
 )
 def test_base_sequential_text_io_reader_readline(data: str, size: int, expected_ten_lines: List[str]):
