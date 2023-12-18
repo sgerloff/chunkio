@@ -6,6 +6,7 @@ from types import TracebackType
 from typing import BinaryIO, TextIO, Type, Iterator, AnyStr, Iterable, Optional, Any, Generator
 
 from chunkio.chunk_handler.format import BaseChunkFormat, SubdirNumberedChunkFormat
+from ._utils import check_mode
 
 
 class BaseSequentialTextIOReader(typing.TextIO):
@@ -18,6 +19,8 @@ class BaseSequentialTextIOReader(typing.TextIO):
             verbose: bool = True,
             **open_kwargs
     ):
+        check_mode(mode, "rt")
+
         self.file_path = file_path
         self.open_args = open_args
         self._mode = mode
