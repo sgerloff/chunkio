@@ -41,9 +41,14 @@ class BaseSequentialTextIOReader(typing.TextIO):
             yield open(file_path, mode=self.mode, *self.open_args, **self.open_kwargs)
 
     def _open_next_file(self):
-        if isinstance(self._current_file, _io.TextIOWrapper):
-            self._current_file.close()
+        _old_file = self._current_file  # Remember old file
+
         self._current_file = next(self._file_generator)
+
+        # Close file only after opening a new file successfully!
+        if isinstance(_old_file, _io.TextIOWrapper):
+            _old_file.close()
+
 
     @property
     def mode(self) -> str:
