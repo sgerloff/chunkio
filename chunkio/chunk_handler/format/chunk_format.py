@@ -67,10 +67,19 @@ class SubdirNumberedChunkFormat(BaseChunkFormat):
 
         file_name = os.path.basename(file_path)
         file_name, file_ext = os.path.splitext(file_name)
+
+        if not self.keep_extension:
+            file_path, _ = os.path.splitext(file_path)
+
         return os.path.join(file_path, f"{file_name}.{index:{self.index_format}}{file_ext}")
 
     def parse(self, chunk_file_path: str) -> Tuple[str, int]:
         base_file_path = os.path.dirname(chunk_file_path)
+
+        if not self.keep_extension:
+            _, file_extension = os.path.splitext(chunk_file_path)
+            base_file_path = base_file_path + file_extension
+
         _chunk_file_name = os.path.basename(chunk_file_path)
 
         _chunk_file_split = _chunk_file_name.split(".")
@@ -85,6 +94,10 @@ class SubdirNumberedChunkFormat(BaseChunkFormat):
 
     def walk(self, file_path: str, return_index: bool = False) -> Generator[Union[str, Tuple[str, int]], None, None]:
         parsed_files, parsed_ids = [],[]
+
+        if not self.keep_extension:
+            file_path, _ = os.path.splitext(file_path)
+
         for file_name in os.listdir(file_path):
             potential_file_path = os.path.join(file_path, file_name)
             if not os.path.isfile(potential_file_path):
