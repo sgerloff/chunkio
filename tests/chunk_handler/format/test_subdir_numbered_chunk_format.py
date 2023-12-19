@@ -107,3 +107,35 @@ def test_walk_subdir_numbered_chunk_format():
     expected_file_paths = [os.path.join(base_directory, file_name) for file_name in ordered_valid_files]
 
     assert list(chunk_format.walk(base_directory)) == expected_file_paths
+
+def test_walk_subdir_numbered_chunk_format_no_extension():
+    base_directory = "/tmp/chunkio/subdir_numbered_chunk_format"
+    shutil.rmtree(base_directory, ignore_errors=True)
+
+    ordered_valid_files = [
+        "subdir_numbered_chunk_format.000000.txt",
+        "subdir_numbered_chunk_format.000001.txt",
+        "subdir_numbered_chunk_format.123456.txt"
+    ]
+    invalid_dirs = [
+        "subdir_numbered_chunk_format.000002.txt"
+    ]
+    invalid_files = [
+        "subdir_numbered_chunk_format.txt",
+        "subdir_numbered_chunk_format.two.txt",
+        "subdir_numbered_chunk_format.-1.txt",
+        "not_matching_base_file.-1.txt"
+    ]
+
+    os.makedirs(base_directory, exist_ok=True)
+    for file_name in ordered_valid_files + invalid_files:
+        with open(os.path.join(base_directory, file_name), "w") as file:
+            file.write("\n")
+    for dir_name in invalid_dirs:
+        os.makedirs(os.path.join(base_directory, dir_name), exist_ok=True)
+
+    chunk_format = SubdirNumberedChunkFormat(index_format="06d", keep_extension=False)
+    expected_file_paths = [os.path.join(base_directory, file_name) for file_name in ordered_valid_files]
+
+    pytest.assume(list(chunk_format.walk(base_directory + ".txt")) == expected_file_paths)
+    pytest.assume(list(chunk_format.walk(base_directory)) == expected_file_paths)
