@@ -51,7 +51,7 @@ class BaseChunkFormat(ABC):
 
 
 class SubdirNumberedChunkFormat(BaseChunkFormat):
-    def __init__(self, index_format: str = "06d"):
+    def __init__(self, index_format: str = "06d", keep_extension: bool = True):
         """
         Uses the base file path as a directory and places chunks in that directory:
         - /path/to/base_file_path.ext/base_file_path.{index:06d}.ext
@@ -60,6 +60,7 @@ class SubdirNumberedChunkFormat(BaseChunkFormat):
         """
 
         self.index_format = index_format
+        self.keep_extension = keep_extension
 
     def format(self, file_path: str, index: int) -> str:
         self._validate_index(index)
