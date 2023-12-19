@@ -54,9 +54,12 @@ class SubdirNumberedChunkFormat(BaseChunkFormat):
     def __init__(self, index_format: str = "06d", keep_extension: bool = True):
         """
         Uses the base file path as a directory and places chunks in that directory:
-        - /path/to/base_file_path.ext/base_file_path.{index:06d}.ext
+
+        keep_extension: true -> /path/to/base_file_path.ext/base_file_path.{index:06d}.ext
+        keep_extension: false -> /path/to/base_file_path/base_file_path.{index:06d}.ext
 
         :param index_format: format string for the index string
+        :param keep_extension: keeps the file extension when creating the directory containing the file chunks, default true
         """
 
         self.index_format = index_format
