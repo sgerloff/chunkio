@@ -137,5 +137,4 @@ def test_walk_subdir_numbered_chunk_format_no_extension():
     chunk_format = SubdirNumberedChunkFormat(index_format="06d", keep_extension=False)
     expected_file_paths = [os.path.join(base_directory, file_name) for file_name in ordered_valid_files]
 
-    pytest.assume(list(chunk_format.walk(base_directory + ".txt")) == expected_file_paths)
-    pytest.assume(list(chunk_format.walk(base_directory)) == expected_file_paths)
+    assert list(chunk_format.walk(base_directory + ".txt")) == expected_file_paths

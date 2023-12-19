@@ -95,6 +95,7 @@ class SubdirNumberedChunkFormat(BaseChunkFormat):
     def walk(self, file_path: str, return_index: bool = False) -> Generator[Union[str, Tuple[str, int]], None, None]:
         parsed_files, parsed_ids = [],[]
 
+        expected_base_path = file_path
         if not self.keep_extension:
             file_path, _ = os.path.splitext(file_path)
 
@@ -106,7 +107,7 @@ class SubdirNumberedChunkFormat(BaseChunkFormat):
                 base_path, index = self.parse(potential_file_path)
             except AssertionError:
                 continue
-            if base_path != file_path:
+            if base_path != expected_base_path:
                 continue
             parsed_files.append(potential_file_path)
             parsed_ids.append(index)
