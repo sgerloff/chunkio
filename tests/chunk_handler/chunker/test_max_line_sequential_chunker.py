@@ -24,8 +24,9 @@ def test_max_line_sequential_chunker_index(max_lines: int, num_lines: int, expec
 @pytest.mark.parametrize(
     "max_lines, previous_num_lines, num_lines, expected_indices", [
         (10, 0, 2, [0, 0]),
-        (10, 9, 2, [0, 1]),
-        (10, 109, 12, [10] + (10 * [11]) + [12])
+        (10, 9, 2, [0, 1]),  # Span chunk
+        (10, 10, 11, (10*[1]) + [2]),  # Exhaust full chunk first
+        (10, 109, 12, [10] + (10 * [11]) + [12])  # Span multiple chunks
     ]
 )
 def test_max_line_sequential_chunker_indices(max_lines: int,
