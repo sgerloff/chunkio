@@ -1,6 +1,6 @@
 import pytest
 
-from chunkio.chunk_handler._utils import check_mode
+from chunkio.chunk_handler.utils import check_mode
 
 
 @pytest.mark.parametrize(

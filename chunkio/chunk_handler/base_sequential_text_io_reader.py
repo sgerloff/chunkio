@@ -6,7 +6,7 @@ from types import TracebackType
 from typing import BinaryIO, TextIO, Type, Iterator, AnyStr, Iterable, Optional, Any, Generator
 
 from chunkio.chunk_handler.format import BaseChunkFormat, SubdirNumberedChunkFormat
-from ._utils import check_mode
+from .utils import check_mode
 
 
 class BaseSequentialTextIOReader(typing.TextIO):
