@@ -23,7 +23,6 @@ class SequentialChunker(ABC):
         """
         pass
 
-    @abstractmethod
     def indices(self, lines: List[str]) -> List[int]:
         """
         Split list of lines into chunks of lines written to the next chunk files.
@@ -31,7 +30,7 @@ class SequentialChunker(ABC):
         :param lines: list of lines (each being a string)
         :return: list of chunk indices for the provided list of lines
         """
-        pass
+        return [self.index(line) for line in lines]
 
 
 class MaxLineSequentialChunker(SequentialChunker):
