@@ -18,8 +18,5 @@ def parse_lines(string: str, delimiter: str = "\n") -> (List[str], str):
     :return: list of complete lines, incomplete next line
     """
 
-    if string.endswith(delimiter):
-        return string[:-len(delimiter)].split(delimiter), ""
-    else:
-        _lines = string.split(delimiter)
-        return _lines[:-1], _lines[-1]
+    _lines = string.split(delimiter)
+    return _lines[:-1], _lines[-1]
