@@ -7,6 +7,7 @@ from chunkio.chunk_handler.utils import parse_lines
 
 @pytest.mark.parametrize(
     "delimiter, input_string, expected_lines, expected_incomplete_line", [
+        ("\n", "line", [], "line"),
         ("\n", "line\nline\n", ["line", "line"], ""),
         ("\n", "line\nline", ["line"], "line"),
         ("\n", "\nline\n\nline\n\nline", ["", "line", "", "line", ""], "line"),
