@@ -74,6 +74,9 @@ class SubdirNumberedChunkFormat(BaseChunkFormat):
         if not self.keep_extension:
             file_path, _ = os.path.splitext(file_path)
 
+        if not os.path.isdir(file_path):
+            os.mkdir(file_path)
+
         return os.path.join(file_path, f"{file_name}.{index:{self.index_format}}{file_ext}")
 
     def parse(self, chunk_file_path: str) -> Tuple[str, int]:
