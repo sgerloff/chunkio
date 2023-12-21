@@ -9,7 +9,7 @@ def check_mode(mode: str, accepted: str) -> bool:
     raise AssertionError(f"Provided mode '{mode}' does conflict with accepted modes: {accepted}")
 
 
-def parse_lines(string: str, delimiter: str = "\n") -> (List[str], str):
+def parse_lines(string: str, delimiter: str = "\n") -> List[str]:
     """
     Parses string for complete lines and the last incomplete line
 
@@ -17,6 +17,7 @@ def parse_lines(string: str, delimiter: str = "\n") -> (List[str], str):
     :param delimiter: delimiter that indicates a line break, default '\\n'
     :return: list of complete lines, incomplete next line
     """
-
-    _lines = string.split(delimiter)
-    return _lines[:-1], _lines[-1]
+    _splits = string.split(delimiter)
+    _split_sep = [line+delimiter for line in _splits]
+    _split_sep[-1] = _splits[-1]
+    return _split_sep
