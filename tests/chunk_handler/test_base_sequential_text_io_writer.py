@@ -83,7 +83,7 @@ def test_base_sequential_text_io_writer_mixed_writes():
     _chunker = MaxLineSequentialChunker(max_lines=max_lines)
     with BaseSequentialTextIOWriter(base_file_path, mode="w", chunker=_chunker) as file:
         file.write("fir")  # Start a line but don't finish
-        file.writelines(["st", "second"])
+        file.writelines(["st\n", "second\n"])
         file.write("third\nfourth")
 
     expected_data = dict()
