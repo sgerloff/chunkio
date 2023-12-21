@@ -94,4 +94,8 @@ class MaxLineSequentialChunker(SequentialChunker):
                 self._current_index += 1
             _line_cursor += len(_group_slice)
 
+        # Correct current line count if last line was incomplete
+        if grouped_lines and not grouped_lines[-1][-1].endswith(self.delimiter):
+            self.current_line_count -= 1
+
         return indices
