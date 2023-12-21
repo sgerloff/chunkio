@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
+from chunkio.chunk_handler.utils import group_into_lines
+
 
 class SequentialChunker(ABC):
     def __init__(self):
@@ -40,9 +42,10 @@ class SequentialChunker(ABC):
 
 
 class MaxLineSequentialChunker(SequentialChunker):
-    def __init__(self, max_lines: int = 10_000):
+    def __init__(self, max_lines: int = 10_000, delimiter: str = "\n"):
         super().__init__()
         self.max_lines = max_lines
+        self.delimiter = delimiter
         self.current_line_count = None
         self.reset()
 
@@ -50,32 +53,45 @@ class MaxLineSequentialChunker(SequentialChunker):
         self.current_line_count = 0
         self._current_index = 0
 
-    def index(self, line: str) -> int:
+    def index(self, line_part: str) -> int:
         if self.current_line_count >= self.max_lines:
             self.current_line_count = 0  # Reset line count
             self._current_index += 1
 
-        self.current_line_count += 1
+        if line_part.endswith(self.delimiter):
+            self.current_line_count += 1
         return self._current_index
 
-    def indices(self, lines: List[str]) -> List[int]:
+    def indices(self, line_parts: List[str]) -> List[int]:
         _remaining_lines = self.max_lines - self.current_line_count
-        _lines_length = len(lines)
+
+        grouped_lines = group_into_lines(line_parts, delimiter=self.delimiter)
+        grouped_lines_length = [len(group) for group in grouped_lines]
+        lines_length = len(grouped_lines_length)
 
         indices = []
-        if _remaining_lines > _lines_length:
-            self.current_line_count += _lines_length
-            return _lines_length * [self._current_index]
-        else:
-            indices += _remaining_lines * [self._current_index]
-            self._current_index += 1
-            _lines_length -= _remaining_lines
+        if _remaining_lines > lines_length:  # Simple edge case that provided line parts fit the current file
+            self.current_line_count += lines_length
+            return len(line_parts) * [self._current_index]
 
-        _num_chunks = int(_lines_length/self.max_lines)
-        _resulting_line_count = _lines_length % self.max_lines
-        for _ in range(_num_chunks):
-            indices += self.max_lines * [self._current_index]
-            self._current_index += 1
-        indices += _resulting_line_count * [self._current_index]
-        self.current_line_count = _resulting_line_count
+        # First finish the incomplete current file
+        line_parts_length = sum(
+            [length for length in grouped_lines_length[:_remaining_lines]]
+        )
+        indices += line_parts_length * [self._current_index]
+        self._current_index += 1
+        _line_cursor = _remaining_lines
+
+        # Recursively fill more files
+        while _line_cursor < len(grouped_lines):
+            _group_slice = grouped_lines_length[_line_cursor: _line_cursor + self.max_lines]
+            line_parts_length = sum(
+                [length for length in _group_slice]
+            )
+            indices += line_parts_length * [self._current_index]
+            self.current_line_count = len(_group_slice)
+            if self.current_line_count >= self.max_lines:
+                self._current_index += 1
+            _line_cursor += len(_group_slice)
+
         return indices
