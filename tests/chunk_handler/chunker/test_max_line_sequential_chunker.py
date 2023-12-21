@@ -53,17 +53,27 @@ def test_max_line_sequential_chunker_indices(max_lines: int,
 
 @pytest.mark.parametrize(
     "delimiter, max_lines, prime_lines, line_parts, expected_indices", [
+        # Simple Example
         (
                 "\n", 2,
                 3 * ["\n"],
                 ["fir", "st\n", "s", "e", "c", "ond\n", "third\n", "four", "th"],
                 [1, 1, 2, 2, 2, 2, 2, 3, 3]
-        ), (
+        ),
+        # Incomplete previous chunks
+        (
                 "\n", 2,
                 ["\n", "\n", "in", "complete"],
                 ["fir", "st\n", "s", "e", "c", "ond\n", "third\n", "four", "th"],
                 [1, 1, 1, 1, 1, 1, 2, 2, 2]
-        )
+        ),
+        # Incomplete partial chunk
+        (
+                "\n", 2,
+                ["\n", "in", "complete"],
+                ["fir", "st\n", "s", "e", "c", "ond\n", "third\n", "four", "th"],
+                [0, 0, 1, 1, 1, 1, 1, 2, 2]
+        ),
     ]
 )
 def test_max_line_sequential_chunker_indices_line_parts(delimiter: str,
