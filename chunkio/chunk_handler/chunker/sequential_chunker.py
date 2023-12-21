@@ -22,23 +22,23 @@ class SequentialChunker(ABC):
         pass
 
     @abstractmethod
-    def index(self, line: str) -> int:
+    def index(self, line_part: str) -> int:
         """
         Returns true if this line should be writen to the chunker chunk file, else returns false.
 
-        :param line: line to be written
+        :param line_part: line to be written
         :return: chunk index of the provided line
         """
         pass
 
-    def indices(self, lines: List[str]) -> List[int]:
+    def indices(self, line_parts: List[str]) -> List[int]:
         """
         Split list of lines into chunks of lines written to the next chunk files.
 
-        :param lines: list of lines (each being a string)
+        :param line_parts: list of lines (each being a string)
         :return: list of chunk indices for the provided list of lines
         """
-        return [self.index(line) for line in lines]
+        return [self.index(line) for line in line_parts]
 
 
 class MaxLineSequentialChunker(SequentialChunker):
