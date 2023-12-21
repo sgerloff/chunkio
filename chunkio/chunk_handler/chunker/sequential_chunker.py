@@ -70,17 +70,17 @@ class MaxLineSequentialChunker(SequentialChunker):
         lines_length = len(grouped_lines_length)
 
         indices = []
-        if _remaining_lines > lines_length:  # Simple edge case that provided line parts fit the current file
+        if _remaining_lines >= lines_length:  # Simple edge case that provided line parts fit the current file
             self.current_line_count += lines_length
-            return len(line_parts) * [self._current_index]
-
-        # First finish the incomplete current file
-        line_parts_length = sum(
-            [length for length in grouped_lines_length[:_remaining_lines]]
-        )
-        indices += line_parts_length * [self._current_index]
-        self._current_index += 1
-        _line_cursor = _remaining_lines
+            indices += len(line_parts) * [self._current_index]
+            _line_cursor = lines_length
+        else:  # Else finish the incomplete current file
+            line_parts_length = sum(
+                [length for length in grouped_lines_length[:_remaining_lines]]
+            )
+            indices += line_parts_length * [self._current_index]
+            self._current_index += 1
+            _line_cursor = _remaining_lines
 
         # Recursively fill more files
         while _line_cursor < len(grouped_lines):
