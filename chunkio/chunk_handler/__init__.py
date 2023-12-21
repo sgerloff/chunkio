@@ -1,5 +1,6 @@
 from .writer.max_line_chunk_writer import MaxLineChunkWriter
 from .format import SubdirNumberedChunkFormat
 from .base_sequential_text_io_reader import BaseSequentialTextIOReader
+from .base_sequential_text_io_writer import BaseSequentialTextIOWriter
 from .chunker import MaxLineSequentialChunker
 from .utils import parse_lines
