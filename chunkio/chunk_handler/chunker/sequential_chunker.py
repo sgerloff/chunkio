@@ -53,10 +53,13 @@ class MaxLineSequentialChunker(SequentialChunker):
         self.current_line_count = 0
         self._current_index = 0
 
+    def _increment_current_index(self):
+        self.current_line_count = 0
+        self._current_index += 1
+
     def index(self, line_part: str) -> int:
         if self.current_line_count >= self.max_lines:
-            self.current_line_count = 0  # Reset line count
-            self._current_index += 1
+            self._increment_current_index()
 
         if line_part.endswith(self.delimiter):
             self.current_line_count += 1
@@ -70,6 +73,7 @@ class MaxLineSequentialChunker(SequentialChunker):
         lines_length = len(grouped_lines_length)
 
         indices = []
+        _line_cursor = 0
         if _remaining_lines >= lines_length:  # Simple edge case that provided line parts fit the current file
             self.current_line_count += lines_length
             indices += len(line_parts) * [self._current_index]
@@ -79,19 +83,20 @@ class MaxLineSequentialChunker(SequentialChunker):
                 [length for length in grouped_lines_length[:_remaining_lines]]
             )
             indices += line_parts_length * [self._current_index]
-            self._current_index += 1
+            self._increment_current_index()
             _line_cursor = _remaining_lines
 
         # Recursively fill more files
         while _line_cursor < len(grouped_lines):
             _group_slice = grouped_lines_length[_line_cursor: _line_cursor + self.max_lines]
+            _group_line_slice = grouped_lines[_line_cursor: _line_cursor + self.max_lines]
             line_parts_length = sum(
                 [length for length in _group_slice]
             )
             indices += line_parts_length * [self._current_index]
             self.current_line_count = len(_group_slice)
-            if self.current_line_count >= self.max_lines:
-                self._current_index += 1
+            if self.current_line_count >= self.max_lines and _group_line_slice[-1][-1].endswith(self.delimiter):
+                self._increment_current_index()
             _line_cursor += len(_group_slice)
 
         # Correct current line count if last line was incomplete
