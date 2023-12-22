@@ -8,6 +8,7 @@ from typing import List
     "max_lines, num_lines, expected_index", [
         (10, 1, 0),
         (10, 10, 0),
+        (1, 10, 9),
         (10, 11, 1),
         (10, 100, 9),
         (10, 101, 10)
@@ -35,7 +36,8 @@ def test_max_line_sequential_chunker_index_line_parts():
         (10, 0, 11, (10 * [0]) + [1]),
         (10, 9, 2, [0, 1]),  # Span chunk
         (10, 10, 11, (10 * [1]) + [2]),  # Exhaust full chunk first
-        (10, 109, 12, [10] + (10 * [11]) + [12])  # Span multiple chunks
+        (10, 109, 12, [10] + (10 * [11]) + [12]),  # Span multiple chunks
+        (1, 10, 2, [10, 11]),  # Edge case max_lines=1
     ]
 )
 def test_max_line_sequential_chunker_indices(max_lines: int,
@@ -74,6 +76,13 @@ def test_max_line_sequential_chunker_indices(max_lines: int,
                 ["fir", "st\n", "s", "e", "c", "ond\n", "third\n", "four", "th"],
                 [0, 0, 1, 1, 1, 1, 1, 2, 2]
         ),
+        # Max Lines = 1 Edge Cases
+        (
+            "\n", 1,
+            ["line\n", "incomplete", "line"],
+            ["line\n", "complete"],
+            [1, 2]
+        )
     ]
 )
 def test_max_line_sequential_chunker_indices_line_parts(delimiter: str,
