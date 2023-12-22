@@ -77,7 +77,7 @@ def test_parse_subdir_numbered_chunk_format_assertion(file_path: str):
         chunk_format.parse(file_path)
 
 
-def test_walk_subdir_numbered_chunk_format():
+def test_list_subdir_numbered_chunk_format():
     base_directory = "/tmp/chunkio/subdir_numbered_chunk_format.txt"
     shutil.rmtree(base_directory, ignore_errors=True)
 
@@ -106,9 +106,9 @@ def test_walk_subdir_numbered_chunk_format():
     chunk_format = SubdirNumberedChunkFormat(index_format="06d")
     expected_file_paths = [os.path.join(base_directory, file_name) for file_name in ordered_valid_files]
 
-    assert list(chunk_format.walk(base_directory)) == expected_file_paths
+    assert list(chunk_format.list(base_directory)) == expected_file_paths
 
-def test_walk_subdir_numbered_chunk_format_no_extension():
+def test_list_subdir_numbered_chunk_format_no_extension():
     base_directory = "/tmp/chunkio/subdir_numbered_chunk_format"
     shutil.rmtree(base_directory, ignore_errors=True)
 
@@ -137,4 +137,4 @@ def test_walk_subdir_numbered_chunk_format_no_extension():
     chunk_format = SubdirNumberedChunkFormat(index_format="06d", keep_extension=False)
     expected_file_paths = [os.path.join(base_directory, file_name) for file_name in ordered_valid_files]
 
-    assert list(chunk_format.walk(base_directory + ".txt")) == expected_file_paths
+    assert list(chunk_format.list(base_directory + ".txt")) == expected_file_paths

@@ -38,7 +38,7 @@ class BaseChunkFormat(ABC):
         pass
 
     @abstractmethod
-    def walk(self, file_path: str, return_index: bool = False) -> Generator[Union[str, Tuple[str, int]], None, None]:
+    def list(self, file_path: str, return_index: bool = False) -> Generator[Union[str, Tuple[str, int]], None, None]:
         """
         Generator yielding all chunked file paths corresponding to the base file path in ascending order.
         Optionally, does return the index.
@@ -98,7 +98,7 @@ class SubdirNumberedChunkFormat(BaseChunkFormat):
 
         return base_file_path, chunk_index
 
-    def walk(self, file_path: str, return_index: bool = False) -> Generator[Union[str, Tuple[str, int]], None, None]:
+    def list(self, file_path: str, return_index: bool = False) -> Generator[Union[str, Tuple[str, int]], None, None]:
         parsed_files, parsed_ids = [],[]
 
         expected_base_path = file_path

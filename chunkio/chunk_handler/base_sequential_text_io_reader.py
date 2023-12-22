@@ -32,7 +32,7 @@ class BaseSequentialTextIOReader(typing.TextIO):
         self._file_generator = self._set_file_generator()
 
     def _set_file_generator(self) -> Generator[TextIO, None, None]:
-        for file_path in self.chunk_format.walk(self.file_path):
+        for file_path in self.chunk_format.list(self.file_path):
             yield open(file_path, mode=self.mode, *self.open_args, **self.open_kwargs)
 
     def _open_next_file(self):
