@@ -1,5 +1,3 @@
-from typing import Optional
-
 from chunkio.chunk_handler import SubdirNumberedChunkFormat
 
 

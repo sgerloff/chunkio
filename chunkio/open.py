@@ -2,7 +2,7 @@ import builtins
 
 from typing import Optional
 
-from chunkio.chunk_handler import MaxLineChunkWriter, BaseSequentialTextIOReader, SubdirNumberedChunkFormat, BaseSequentialTextIOWriter, MaxLineSequentialChunker
+from chunkio.chunk_handler import BaseSequentialTextIOReader, SubdirNumberedChunkFormat, BaseSequentialTextIOWriter, MaxLineSequentialChunker
 
 
 def open(file_path: str,
